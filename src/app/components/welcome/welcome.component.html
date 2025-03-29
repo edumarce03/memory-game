@@ -1,0 +1,45 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-violet-950 to-violet-900"
+>
+  <div
+    class="bg-neutral-900 bg-opacity-50 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-xs md:max-w-md backdrop-blur-sm"
+  >
+    <h1
+      class="text-xl md:text-2xl font-inter font-bold text-center text-indigo-100 my-5"
+    >
+      ¡Bienvenido al Juego de la Memoria! 🧠
+    </h1>
+    <div class="mt-4 mb-6">
+      <label
+        for="playerName"
+        class="block text-sm md:text-base font-inter text-white mb-4"
+      >
+        Ingresa tu nombre:
+      </label>
+      <input
+        id="playerName"
+        type="text"
+        [(ngModel)]="playerName"
+        class="text-xs md:text-sm w-full p-3 bg-transparent border border-white/20 rounded-md font-inter text-white placeholder-white focus:outline-none focus:ring-1 focus:ring-indigo-400"
+        placeholder="Tu nombre aquí"
+        required
+      />
+    </div>
+    <div class="flex justify-between gap-4">
+      <button
+        class="text-xs md:text-sm w-full py-3 bg-indigo-700 text-white font-inter rounded-md hover:bg-indigo-800 transition duration-200 flex items-center justify-center gap-2"
+        [disabled]="!playerName"
+      >
+        <i class="fas fa-door-open"></i>
+        Crear Sala
+      </button>
+      <button
+        class="text-xs md:text-sm w-full py-3 bg-orange-600 text-white font-inter rounded-md hover:bg-orange-700 transition duration-200 flex items-center justify-center gap-2"
+        [disabled]="!playerName"
+      >
+        <i class="fas fa-users"></i>
+        Unirse a Sala
+      </button>
+    </div>
+  </div>
+</div>
