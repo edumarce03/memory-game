@@ -1,0 +1,304 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-950 to-slate-900 p-4"
+>
+  <div
+    class="bg-gray-800/60 p-6 md:p-8 lg:p-10 rounded-2xl shadow-2xl w-full max-w-xs md:max-w-md lg:max-w-lg backdrop-blur-md border border-purple-500/20 relative overflow-hidden"
+  >
+    <!-- Elementos decorativos de fondo -->
+    <div
+      class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-xl"
+    ></div>
+    <div
+      class="absolute -bottom-8 -left-8 w-28 h-28 bg-purple-500/20 rounded-full blur-xl"
+    ></div>
+
+    <h1
+      class="text-2xl md:text-3xl font-inter font-bold text-center text-purple-200 mb-6 drop-shadow-md"
+    >
+      {{ isPlayer1 ? "Sala Creada" : "Unido a la Sala" }} 🧠
+    </h1>
+
+    <!-- ID de Sala con botón de copiado -->
+    <div
+      class="mb-6 bg-gray-900/40 p-3 rounded-lg flex items-center justify-between"
+    >
+      <p class="text-sm md:text-base font-inter text-white">
+        ID de sala:
+        <span class="italic text-orange-400 font-inter text-xs">{{
+          roomId
+        }}</span>
+      </p>
+      <button
+        class="ml-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200"
+        (click)="copyRoomId()"
+        title="Copiar ID"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Jugadores y puntuaciones -->
+    <div class="flex justify-between mb-6 bg-gray-900/40 p-4 rounded-lg">
+      <div
+        class="text-center p-2 rounded-lg bg-indigo-900/30 flex-1 mr-2 font-inter"
+      >
+        <p class="text-xs md:text-sm font-inter text-gray-300 mb-1">
+          Jugador 1
+        </p>
+        <p class="font-bold text-indigo-400 text-sm md:text-base truncate">
+          {{ roomData?.player1 || "Esperando..." }}
+        </p>
+        <p class="text-xl font-bold text-white mt-1">
+          {{ roomData?.player1Score || 0 }}
+        </p>
+      </div>
+      <div
+        class="text-center p-2 rounded-lg bg-orange-900/30 flex-1 ml-2 font-inter"
+      >
+        <p class="text-xs md:text-sm font-inter text-gray-300 mb-1">
+          Jugador 2
+        </p>
+        <p class="font-bold text-orange-400 text-sm md:text-base truncate">
+          {{ roomData?.player2 || "Esperando..." }}
+        </p>
+        <p class="text-xl font-bold text-white mt-1">
+          {{ roomData?.player2Score || 0 }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Selección de categorías para Player 1 -->
+    @if (roomData?.status === 'active' && isPlayer1) {
+    <div class="mb-6 bg-gray-900/40 p-4 rounded-lg">
+      <p class="text-sm md:text-base font-inter text-gray-300 mb-3 text-center">
+        Selecciona una categoría para el juego:
+      </p>
+      <div class="grid grid-cols-2 gap-3">
+        @for (category of categories; track category) {
+        <button
+          (click)="selectCategory(category)"
+          class="py-3 bg-gradient-to-r from-indigo-800 to-indigo-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 capitalize text-sm md:text-base"
+        >
+          {{
+            category === "emotions"
+              ? "Emociones"
+              : category === "food"
+              ? "Comida"
+              : category === "animals"
+              ? "Animales"
+              : "Profesiones"
+          }}
+        </button>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Espera para Player 2 -->
+    @if (roomData?.status === 'active' && !isPlayer1) {
+    <div class="mb-6 bg-gray-900/40 p-4 rounded-lg">
+      <p class="text-sm md:text-base font-inter text-gray-300 text-center">
+        Esperando a que {{ roomData?.player1 }} elija una categoría...
+      </p>
+      <div class="flex justify-center mt-3">
+        <div class="animate-pulse flex space-x-2">
+          <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+          <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+          <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Tablero de juego -->
+    @if (roomData?.status === 'playing' || roomData?.status === 'finished') {
+    <div class="mb-6">
+      <div class="flex justify-between mb-4 bg-gray-900/40 p-3 rounded-lg">
+        <p class="text-xs md:text-sm font-inter text-gray-300">
+          Categoría:
+          <span class="font-bold text-indigo-400 capitalize">
+            {{
+              roomData?.category === "emotions"
+                ? "Emociones"
+                : roomData?.category === "food"
+                ? "Comida"
+                : roomData?.category === "animals"
+                ? "Animales"
+                : "Profesiones"
+            }}
+          </span>
+        </p>
+        @if (roomData?.status === 'playing') {
+        <p class="text-xs md:text-sm font-inter text-gray-300">
+          Turno:
+          <span
+            class="font-bold {{
+              roomData?.currentTurn === roomData?.player1
+                ? 'text-indigo-400'
+                : 'text-orange-400'
+            }}"
+            >{{ roomData?.currentTurn || "Comenzando..." }}</span
+          >
+        </p>
+        }
+      </div>
+
+      <!-- Tablero de memoria -->
+      <div
+        class="grid grid-cols-4 gap-2 md:gap-3 w-full max-w-[280px] mx-auto bg-gray-900/40 p-3 rounded-lg"
+      >
+        @for (emoji of roomData?.board; track emoji; let i = $index) {
+        <div
+          (click)="flipCard(i)"
+          class="aspect-square flex items-center justify-center rounded-md text-xl md:text-2xl cursor-pointer transition-all duration-300 transform hover:scale-105"
+          [ngClass]="{
+                'bg-indigo-700': roomData?.flipped.includes(i) && roomData?.currentTurn === roomData?.player1,
+                'bg-orange-700': roomData?.flipped.includes(i) && roomData?.currentTurn === roomData?.player2,
+                'bg-indigo-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player1,
+                'bg-orange-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player2,
+                'bg-violet-800': !roomData?.flipped.includes(i) && !roomData?.matched.includes(i),
+                'rotate-y-180': (showAllCards || roomData?.flipped.includes(i) || roomData?.matched.includes(i)) && !roomData?.matched.includes(i),
+                'pointer-events-none': roomData?.matched.includes(i) || roomData?.currentTurn !== playerName || roomData?.status === 'finished',
+                'shadow-md hover:shadow-lg': !roomData?.matched.includes(i) && roomData?.currentTurn === playerName && roomData?.status !== 'finished'
+              }"
+        >
+          <span
+            class="transition-opacity duration-300"
+            [ngClass]="{
+              'opacity-0':
+                !showAllCards &&
+                !roomData?.flipped.includes(i) &&
+                !roomData?.matched.includes(i)
+            }"
+          >
+            {{ emoji }}
+          </span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Resultado final -->
+    @if (roomData?.status === 'finished') {
+    <div class="mt-6 bg-gray-900/40 p-4 rounded-lg">
+      <p class="text-lg md:text-xl font-inter font-bold text-white text-center">
+        ¡Juego terminado!
+      </p>
+      <p
+        class="text-sm md:text-base font-inter text-neutral-300 mt-2 text-center"
+      >
+        Resultado:
+        <span
+          class="font-bold text-lg"
+          [ngClass]="{
+            'text-indigo-400':
+              (roomData?.player1Score || 0) > (roomData?.player2Score || 0),
+            'text-orange-400':
+              (roomData?.player2Score || 0) > (roomData?.player1Score || 0),
+            'text-gray-400':
+              (roomData?.player1Score || 0) === (roomData?.player2Score || 0)
+          }"
+        >
+          {{
+            (roomData?.player1Score || 0) > (roomData?.player2Score || 0)
+              ? roomData?.player1 + " gana"
+              : (roomData?.player2Score || 0) > (roomData?.player1Score || 0)
+              ? roomData?.player2 + " gana"
+              : "Empate"
+          }}
+        </span>
+      </p>
+    </div>
+    }
+
+    <!-- Estado y botones -->
+    @if (roomData && (roomData.status === 'waiting' || roomData.status ===
+    'active')) {
+    <div class="mt-6 bg-gray-900/40 p-3 rounded-lg text-center">
+      <p class="text-sm md:text-base font-inter text-gray-300">
+        Estado:
+        <span
+          class="font-bold {{
+            roomData.status === 'active' ? 'text-green-400' : 'text-yellow-400'
+          }}"
+        >
+          {{
+            roomData.status === "active"
+              ? "Lista para jugar"
+              : "Esperando al segundo jugador..."
+          }}
+        </span>
+      </p>
+    </div>
+    } @if (!roomData) {
+    <div class="mt-6 bg-red-900/40 p-4 rounded-lg text-center">
+      <p class="text-sm md:text-base font-inter text-red-400">
+        La sala ha sido cerrada o alguien se ha ido.
+      </p>
+      <p class="text-xs text-gray-400 mt-2">
+        Redirigiendo a la pantalla principal...
+      </p>
+    </div>
+    } @if (roomData) {
+    <div class="flex justify-center gap-4 mt-6">
+      @if (!isPlayer1) {
+      <button
+        class="text-sm md:text-base py-3 px-6 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 flex items-center"
+        (click)="leaveRoom()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
+        </svg>
+        Salir de Sala
+      </button>
+      } @if (isPlayer1) {
+      <button
+        class="text-sm md:text-base py-3 px-6 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 flex items-center"
+        (click)="closeRoom()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+        Cerrar Sala
+      </button>
+      }
+    </div>
+    }
+  </div>
+</div>

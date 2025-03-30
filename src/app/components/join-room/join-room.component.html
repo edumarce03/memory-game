@@ -15,23 +15,23 @@
     <h1
       class="text-2xl md:text-3xl font-inter font-bold text-center text-purple-200 my-6 drop-shadow-md"
     >
-      ¡Bienvenido al Juego de la Memoria! 🧠
+      Unirse a una Sala 🧠
     </h1>
 
     <div class="mt-6 mb-8">
       <label
-        for="playerName"
+        for="roomId"
         class="block text-sm md:text-base font-inter text-gray-300 mb-3 font-medium"
       >
-        Ingresa tu nombre:
+        Ingresa el ID de la sala:
       </label>
       <div class="relative">
         <input
-          id="playerName"
+          id="roomId"
           type="text"
-          [(ngModel)]="playerName"
+          [(ngModel)]="roomId"
           class="text-sm md:text-base w-full p-3 md:p-4 bg-gray-900/70 border border-purple-500/30 rounded-lg font-inter text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
-          placeholder="Tu nombre aquí"
+          placeholder="ID de la sala"
           required
         />
         <div
@@ -40,23 +40,13 @@
       </div>
     </div>
 
-    <div class="flex flex-col md:flex-row justify-between gap-4 mt-8">
-      <button
-        class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-indigo-800 to-indigo-950 text-indigo-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-indigo-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
-        [disabled]="!playerName"
-        (click)="createRoom()"
-      >
-        <i class="fas fa-door-open"></i>
-        Crear Sala
-      </button>
-      <button
-        class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-purple-800 to-purple-950 text-purple-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-purple-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
-        [disabled]="!playerName"
-        (click)="goToJoinRoom()"
-      >
-        <i class="fas fa-users"></i>
-        Unirse a Sala
-      </button>
-    </div>
+    <button
+      class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-purple-800 to-purple-950 text-purple-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-purple-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
+      [disabled]="!roomId"
+      (click)="joinRoom()"
+    >
+      <i class="fas fa-door-open"></i>
+      Unirse
+    </button>
   </div>
 </div>
