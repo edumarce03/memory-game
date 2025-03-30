@@ -1,0 +1,11 @@
+<div
+  class="fixed top-4 left-4 z-50 max-w-xs p-3 rounded-lg shadow-lg"
+  [ngClass]="[
+    type === 'error' ? 'bg-red-900/80 text-white' : '',
+    type === 'success' ? 'bg-green-900/80 text-white' : '',
+    type === 'info' ? 'bg-blue-900/80 text-white' : '',
+    animationClass
+  ]"
+>
+  <p class="text-sm font-inter">{{ message }}</p>
+</div>

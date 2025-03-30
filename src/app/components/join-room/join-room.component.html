@@ -1,3 +1,13 @@
+<!-- Notificación -->
+<app-alert
+  *ngIf="notification"
+  [message]="notification.message"
+  [type]="notification.type"
+  [animationClass]="
+    isNotificationExiting ? 'animate-fade-out' : 'animate-fade-in'
+  "
+></app-alert>
+
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-950 to-slate-900 p-4"
 >

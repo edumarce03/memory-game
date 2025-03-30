@@ -1,3 +1,13 @@
+<!-- Notificación con animación de salida -->
+<app-alert
+  *ngIf="notification"
+  [message]="notification.message"
+  [type]="notification.type"
+  [animationClass]="
+    isNotificationExiting ? 'animate-fade-out' : 'animate-fade-in'
+  "
+></app-alert>
+
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-950 to-slate-900 p-4"
 >
@@ -30,6 +40,7 @@
           id="playerName"
           type="text"
           [(ngModel)]="playerName"
+          (input)="validateName()"
           class="text-sm md:text-base w-full p-3 md:p-4 bg-gray-900/70 border border-purple-500/30 rounded-lg font-inter text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
           placeholder="Tu nombre aquí"
           required
@@ -38,12 +49,23 @@
           class="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 rounded-lg pointer-events-none"
         ></div>
       </div>
+      <!-- Error específico con animación de salida -->
+      <p
+        *ngIf="errorMessage"
+        class="text-xs text-red-400 mt-2 font-inter"
+        [ngClass]="{
+          'animate-fade-in': !isErrorExiting,
+          'animate-fade-out': isErrorExiting
+        }"
+      >
+        {{ errorMessage }}
+      </p>
     </div>
 
     <div class="flex flex-col md:flex-row justify-between gap-4 mt-8">
       <button
         class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-indigo-800 to-indigo-950 text-indigo-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-indigo-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
-        [disabled]="!playerName"
+        [disabled]="!playerName || errorMessage"
         (click)="createRoom()"
       >
         <i class="fas fa-door-open"></i>
@@ -51,7 +73,7 @@
       </button>
       <button
         class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-purple-800 to-purple-950 text-purple-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-purple-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
-        [disabled]="!playerName"
+        [disabled]="!playerName || errorMessage"
         (click)="goToJoinRoom()"
       >
         <i class="fas fa-users"></i>
