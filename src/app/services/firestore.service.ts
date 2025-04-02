@@ -6,6 +6,7 @@ import {
   doc,
   Firestore,
   getDoc,
+  onSnapshot,
   updateDoc,
 } from '@angular/fire/firestore';
 
@@ -49,22 +50,19 @@ export class FirestoreService {
     await deleteDoc(roomRef);
   }
 
-  async setCategory(
-    roomId: string,
-    category: 'emotions' | 'food' | 'animals' | 'professions'
-  ) {
+  async setCategory(roomId: string, category: string) {
     const roomRef = doc(this.firestore, 'rooms', roomId);
-    const emojis = this.generateBoard(category);
-    await updateDoc(roomRef, {
+    const board = this.generateBoard(category as any);
+    return updateDoc(roomRef, {
       category,
-      board: emojis,
       status: 'playing',
+      board,
       flipped: [],
       matched: [],
       matchedBy: [],
-      currentTurn: null,
       player1Score: 0,
       player2Score: 0,
+      currentTurn: null,
     });
   }
 
@@ -104,7 +102,7 @@ export class FirestoreService {
           flipped: [],
           [playerName === data.player1 ? 'player1Score' : 'player2Score']:
             newScore,
-          currentTurn: playerName, // Mantiene el turno si acierta
+          currentTurn: playerName,
           status: isFinished ? 'finished' : 'playing',
         });
       } else {
@@ -112,7 +110,7 @@ export class FirestoreService {
           await updateDoc(roomRef, {
             flipped: [],
             currentTurn:
-              playerName === data.player1 ? data.player2 : data.player1, // Cambia turno si falla
+              playerName === data.player1 ? data.player2 : data.player1,
           });
         }, 1000);
       }
@@ -207,5 +205,43 @@ export class FirestoreService {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  async updateRoomStatus(roomId: string, status: string) {
+    const roomRef = doc(this.firestore, 'rooms', roomId);
+    return updateDoc(roomRef, { status });
+  }
+
+  async clearBoard(roomId: string) {
+    const roomRef = doc(this.firestore, 'rooms', roomId);
+    return updateDoc(roomRef, {
+      board: [],
+      flipped: [],
+      matched: [],
+      matchedBy: [],
+      currentTurn: null,
+      player1Score: 0,
+      player2Score: 0,
+      category: null,
+    });
+  }
+
+  getRoom(roomId: string) {
+    return {
+      subscribe: (callback: any) =>
+        onSnapshot(doc(this.firestore, 'rooms', roomId), callback),
+    };
+  }
+
+  async sendNotification(roomId: string, event: string, data?: any) {
+    const roomRef = doc(this.firestore, 'rooms', roomId);
+    return updateDoc(roomRef, {
+      notification: { event, data, timestamp: Date.now() },
+    });
+  }
+
+  async clearNotification(roomId: string) {
+    const roomRef = doc(this.firestore, 'rooms', roomId);
+    return updateDoc(roomRef, { notification: null });
   }
 }

@@ -16,6 +16,7 @@ export class JoinRoomComponent {
   notification: { message: string; type: 'error' | 'success' | 'info' } | null =
     null;
   isNotificationExiting: boolean = false;
+  isLoading: boolean = false;
 
   private playerService = inject(PlayerService);
   private firestoreService = inject(FirestoreService);
@@ -42,34 +43,44 @@ export class JoinRoomComponent {
       this.router.navigate(['/']);
       return;
     }
-    this.firestoreService
-      .joinRoom(this.roomId, playerName)
-      .then((success) => {
-        if (success) {
-          this.notification = {
-            message: 'Te has unido a la sala con éxito',
-            type: 'success',
-          };
-          this.hideNotificationAfterDelay();
-          setTimeout(() => {
-            this.router.navigate(['/game', this.roomId]);
-          }, 1000);
-        } else {
-          this.notification = {
-            message:
-              'No se pudo unir a la sala. Verifica el ID o si ya está llena.',
-            type: 'error',
-          };
-          this.hideNotificationAfterDelay();
-        }
-      })
-      .catch((error) => {
+    this.isLoading = true;
+    try {
+      const success = await this.firestoreService.joinRoom(
+        this.roomId,
+        playerName
+      );
+      if (success) {
         this.notification = {
-          message: 'Error al unirse a la sala: ' + error.message,
+          message: 'Te has unido a la sala con éxito',
+          type: 'success',
+        };
+        this.hideNotificationAfterDelay();
+        setTimeout(() => {
+          this.router.navigate(['/game', this.roomId]);
+        }, 1000);
+      } else {
+        this.notification = {
+          message:
+            'No se pudo unir a la sala. Verifica el ID o si ya está llena.',
           type: 'error',
         };
         this.hideNotificationAfterDelay();
-      });
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido';
+      this.notification = {
+        message: 'Error al unirse a la sala: ' + errorMessage,
+        type: 'error',
+      };
+      this.hideNotificationAfterDelay();
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/']);
   }
 
   hideNotificationAfterDelay() {

@@ -1,20 +1,21 @@
-<!-- Notificación con animación de salida -->
+<!-- Alerta -->
+@if (notification) {
 <app-alert
-  *ngIf="notification"
   [message]="notification.message"
   [type]="notification.type"
   [animationClass]="
     isNotificationExiting ? 'animate-fade-out' : 'animate-fade-in'
   "
 ></app-alert>
+}
 
+<!-- Contenedor General -->
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-950 to-slate-900 p-4"
 >
   <div
     class="bg-gray-800/60 p-6 md:p-8 lg:p-10 rounded-2xl shadow-2xl w-full max-w-xs md:max-w-md backdrop-blur-md border border-purple-500/20 relative overflow-hidden"
   >
-    <!-- Elementos decorativos de fondo -->
     <div
       class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-xl"
     ></div>
@@ -49,9 +50,8 @@
           class="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 rounded-lg pointer-events-none"
         ></div>
       </div>
-      <!-- Error específico con animación de salida -->
+      @if (errorMessage) {
       <p
-        *ngIf="errorMessage"
         class="text-xs text-red-400 mt-2 font-inter"
         [ngClass]="{
           'animate-fade-in': !isErrorExiting,
@@ -60,16 +60,25 @@
       >
         {{ errorMessage }}
       </p>
+      }
     </div>
 
     <div class="flex flex-col md:flex-row justify-between gap-4 mt-8">
       <button
         class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-indigo-800 to-indigo-950 text-indigo-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-indigo-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
-        [disabled]="!playerName || errorMessage"
+        [disabled]="!playerName || errorMessage || isLoading !== null"
         (click)="createRoom()"
       >
-        <i class="fas fa-door-open"></i>
-        Crear Sala
+        @if (isLoading === 'create') {
+        <div
+          class="w-5 h-5 border-2 border-t-transparent border-indigo-200 rounded-full animate-spin -mr-6"
+        ></div>
+        }
+        <i
+          class="fas fa-door-open"
+          [ngClass]="{ 'opacity-0': isLoading === 'create' }"
+        ></i>
+        <span>{{ isLoading === "create" ? "Creando..." : "Crear Sala" }}</span>
       </button>
       <button
         class="text-sm md:text-base w-full py-3 md:py-4 bg-gradient-to-r from-purple-800 to-purple-950 text-purple-100 font-inter rounded-lg hover:opacity-90 hover:shadow-lg hover:shadow-purple-900/30 hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 font-medium"
@@ -77,7 +86,7 @@
         (click)="goToJoinRoom()"
       >
         <i class="fas fa-users"></i>
-        Unirse a Sala
+        <span>Unirse a Sala</span>
       </button>
     </div>
   </div>

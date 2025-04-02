@@ -1,10 +1,21 @@
+<!-- Alerta -->
+@if (notification) {
+<app-alert
+  [message]="notification.message"
+  [type]="notification.type"
+  [animationClass]="
+    isNotificationExiting ? 'animate-fade-out' : 'animate-fade-in'
+  "
+></app-alert>
+}
+
+<!-- Contenedor General -->
 <div
   class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-950 to-slate-900 p-4"
 >
   <div
-    class="bg-gray-800/60 p-6 md:p-8 lg:p-10 rounded-2xl shadow-2xl w-full max-w-xs md:max-w-md lg:max-w-lg backdrop-blur-md border border-purple-500/20 relative overflow-hidden"
+    class="bg-gray-800/60 p-4 md:p-6 lg:p-8 rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg backdrop-blur-md border border-purple-500/20 relative overflow-hidden"
   >
-    <!-- Elementos decorativos de fondo -->
     <div
       class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-xl"
     ></div>
@@ -13,23 +24,48 @@
     ></div>
 
     <h1
-      class="text-2xl md:text-3xl font-inter font-bold text-center text-purple-200 mb-6 drop-shadow-md"
+      class="text-xl md:text-2xl lg:text-3xl font-inter font-bold text-center text-purple-200 mb-4 md:mb-6 drop-shadow-md"
     >
-      {{ isPlayer1 ? "Sala Creada" : "Unido a la Sala" }} 🧠
+      {{ isPlayer1 ? "Líder de Sala" : "Invitado a Sala" }} 🧠
     </h1>
 
-    <!-- ID de Sala con botón de copiado -->
+    @if (roomData) {
+    <div class="mb-4 flex justify-center">
+      <span
+        class="inline-block px-3 py-1 text-xs font-inter font-medium rounded-full border"
+        [ngClass]="{
+          'border-yellow-400 text-yellow-400 bg-yellow-400/10':
+            roomData.status === 'waiting',
+          'border-green-400 text-green-400 bg-green-400/10':
+            roomData.status === 'active' ||
+            roomData.status === 'playing' ||
+            roomData.status === 'finished'
+        }"
+      >
+        {{
+          roomData.status === "waiting"
+            ? "Esperando al segundo jugador"
+            : roomData.status === "active"
+            ? "Lista para jugar"
+            : roomData.status === "playing"
+            ? "Jugando"
+            : "Finalizado"
+        }}
+      </span>
+    </div>
+    }
+
+    <!-- -->
+    @if (roomData?.status === 'waiting') {
     <div
-      class="mb-6 bg-gray-900/40 p-3 rounded-lg flex items-center justify-between"
+      class="mb-4 bg-gray-900/40 p-2 rounded-lg flex items-center justify-between"
     >
-      <p class="text-sm md:text-base font-inter text-white">
+      <p class="text-xs md:text-sm font-inter text-white truncate">
         ID de sala:
-        <span class="italic text-orange-400 font-inter text-xs">{{
-          roomId
-        }}</span>
+        <span class="italic text-orange-400 text-xs">{{ roomId }}</span>
       </p>
       <button
-        class="ml-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200"
+        class="ml-2 p-1 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200"
         (click)="copyRoomId()"
         title="Copiar ID"
       >
@@ -49,71 +85,81 @@
         </svg>
       </button>
     </div>
+    }
 
-    <!-- Jugadores y puntuaciones -->
-    <div class="flex justify-between mb-6 bg-gray-900/40 p-4 rounded-lg">
+    <!-- -->
+    <div class="flex justify-between mb-4 bg-gray-900/40 p-3 rounded-lg">
       <div
         class="text-center p-2 rounded-lg bg-indigo-900/30 flex-1 mr-2 font-inter"
       >
-        <p class="text-xs md:text-sm font-inter text-gray-300 mb-1">
-          Jugador 1
-        </p>
-        <p class="font-bold text-indigo-400 text-sm md:text-base truncate">
+        <p class="text-xs font-inter text-gray-300 mb-1">Jugador 1</p>
+        <p class="font-bold text-indigo-400 text-sm truncate">
           {{ roomData?.player1 || "Esperando..." }}
         </p>
-        <p class="text-xl font-bold text-white mt-1">
+        <p class="text-lg font-bold text-white mt-1">
           {{ roomData?.player1Score || 0 }}
         </p>
       </div>
       <div
         class="text-center p-2 rounded-lg bg-orange-900/30 flex-1 ml-2 font-inter"
       >
-        <p class="text-xs md:text-sm font-inter text-gray-300 mb-1">
-          Jugador 2
-        </p>
-        <p class="font-bold text-orange-400 text-sm md:text-base truncate">
+        <p class="text-xs font-inter text-gray-300 mb-1">Jugador 2</p>
+        <p class="font-bold text-orange-400 text-sm truncate">
           {{ roomData?.player2 || "Esperando..." }}
         </p>
-        <p class="text-xl font-bold text-white mt-1">
+        <p class="text-lg font-bold text-white mt-1">
           {{ roomData?.player2Score || 0 }}
         </p>
       </div>
     </div>
 
-    <!-- Selección de categorías para Player 1 -->
+    <!-- -->
     @if (roomData?.status === 'active' && isPlayer1) {
-    <div class="mb-6 bg-gray-900/40 p-4 rounded-lg">
-      <p class="text-sm md:text-base font-inter text-gray-300 mb-3 text-center">
-        Selecciona una categoría para el juego:
+    <div class="mb-4 bg-gray-900/40 p-3 rounded-lg">
+      <p class="text-xs md:text-sm font-inter text-gray-300 mb-2 text-center">
+        Selecciona una categoría:
       </p>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 gap-2">
         @for (category of categories; track category) {
         <button
           (click)="selectCategory(category)"
-          class="py-3 bg-gradient-to-r from-indigo-800 to-indigo-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 capitalize text-sm md:text-base"
+          class="py-2 bg-gradient-to-r from-indigo-800 to-indigo-900 text-white font-inter rounded-lg hover:opacity-90 transition duration-200 flex flex-col items-center justify-center"
         >
-          {{
-            category === "emotions"
-              ? "Emociones"
-              : category === "food"
-              ? "Comida"
-              : category === "animals"
-              ? "Animales"
-              : "Profesiones"
-          }}
+          <span class="text-lg mb-1">
+            {{
+              category === "emotions"
+                ? "😊"
+                : category === "food"
+                ? "🍔"
+                : category === "animals"
+                ? "🐱"
+                : "👨‍💼"
+            }}
+          </span>
+          <span class="text-xs md:text-sm">
+            {{
+              category === "emotions"
+                ? "Emociones"
+                : category === "food"
+                ? "Comida"
+                : category === "animals"
+                ? "Animales"
+                : "Profesiones"
+            }}
+          </span>
         </button>
         }
       </div>
     </div>
     }
 
-    <!-- Espera para Player 2 -->
+    <!-- -->
     @if (roomData?.status === 'active' && !isPlayer1) {
-    <div class="mb-6 bg-gray-900/40 p-4 rounded-lg">
-      <p class="text-sm md:text-base font-inter text-gray-300 text-center">
+    <div class="mb-4 bg-gray-900/40 p-3 rounded-lg">
+      <p class="text-xs md:text-sm font-inter text-gray-300 text-center">
         Esperando a que {{ roomData?.player1 }} elija una categoría...
       </p>
-      <div class="flex justify-center mt-3">
+      <div class="flex justify-center mt-2">
         <div class="animate-pulse flex space-x-2">
           <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
           <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
@@ -123,11 +169,11 @@
     </div>
     }
 
-    <!-- Tablero de juego -->
+    <!-- -->
     @if (roomData?.status === 'playing' || roomData?.status === 'finished') {
-    <div class="mb-6">
-      <div class="flex justify-between mb-4 bg-gray-900/40 p-3 rounded-lg">
-        <p class="text-xs md:text-sm font-inter text-gray-300">
+    <div class="mb-4">
+      <div class="flex justify-between mb-3 bg-gray-900/40 p-2 rounded-lg">
+        <p class="text-xs font-inter text-gray-300">
           Categoría:
           <span class="font-bold text-indigo-400 capitalize">
             {{
@@ -142,7 +188,7 @@
           </span>
         </p>
         @if (roomData?.status === 'playing') {
-        <p class="text-xs md:text-sm font-inter text-gray-300">
+        <p class="text-xs font-inter text-gray-300">
           Turno:
           <span
             class="font-bold {{
@@ -150,25 +196,25 @@
                 ? 'text-indigo-400'
                 : 'text-orange-400'
             }}"
-            >{{ roomData?.currentTurn || "Comenzando..." }}</span
           >
+            {{ roomData?.currentTurn || "Comenzando..." }}
+          </span>
         </p>
         }
       </div>
 
-      <!-- Tablero de memoria -->
       <div
-        class="grid grid-cols-4 gap-2 md:gap-3 w-full max-w-[280px] mx-auto bg-gray-900/40 p-3 rounded-lg"
+        class="grid grid-cols-4 gap-2 w-full max-w-[280px] md:max-w-full mx-auto bg-gray-900/40 p-2 rounded-lg"
       >
         @for (emoji of roomData?.board; track emoji; let i = $index) {
         <div
           (click)="flipCard(i)"
-          class="aspect-square flex items-center justify-center rounded-md text-xl md:text-2xl cursor-pointer transition-all duration-300 transform hover:scale-105"
+          class="aspect-square flex items-center justify-center rounded-md text-xl cursor-pointer transition-all duration-300 transform hover:scale-105"
           [ngClass]="{
                 'bg-indigo-700': roomData?.flipped.includes(i) && roomData?.currentTurn === roomData?.player1,
                 'bg-orange-700': roomData?.flipped.includes(i) && roomData?.currentTurn === roomData?.player2,
-                'bg-indigo-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player1,
-                'bg-orange-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player2,
+                'bg-green-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player1,
+                'bg-yellow-600': roomData?.matched.includes(i) && roomData?.matchedBy?.[roomData?.matched.indexOf(i)] === roomData?.player2,
                 'bg-violet-800': !roomData?.flipped.includes(i) && !roomData?.matched.includes(i),
                 'rotate-y-180': (showAllCards || roomData?.flipped.includes(i) || roomData?.matched.includes(i)) && !roomData?.matched.includes(i),
                 'pointer-events-none': roomData?.matched.includes(i) || roomData?.currentTurn !== playerName || roomData?.status === 'finished',
@@ -192,72 +238,12 @@
     </div>
     }
 
-    <!-- Resultado final -->
-    @if (roomData?.status === 'finished') {
-    <div class="mt-6 bg-gray-900/40 p-4 rounded-lg">
-      <p class="text-lg md:text-xl font-inter font-bold text-white text-center">
-        ¡Juego terminado!
-      </p>
-      <p
-        class="text-sm md:text-base font-inter text-neutral-300 mt-2 text-center"
-      >
-        Resultado:
-        <span
-          class="font-bold text-lg"
-          [ngClass]="{
-            'text-indigo-400':
-              (roomData?.player1Score || 0) > (roomData?.player2Score || 0),
-            'text-orange-400':
-              (roomData?.player2Score || 0) > (roomData?.player1Score || 0),
-            'text-gray-400':
-              (roomData?.player1Score || 0) === (roomData?.player2Score || 0)
-          }"
-        >
-          {{
-            (roomData?.player1Score || 0) > (roomData?.player2Score || 0)
-              ? roomData?.player1 + " gana"
-              : (roomData?.player2Score || 0) > (roomData?.player1Score || 0)
-              ? roomData?.player2 + " gana"
-              : "Empate"
-          }}
-        </span>
-      </p>
-    </div>
-    }
-
-    <!-- Estado y botones -->
-    @if (roomData && (roomData.status === 'waiting' || roomData.status ===
-    'active')) {
-    <div class="mt-6 bg-gray-900/40 p-3 rounded-lg text-center">
-      <p class="text-sm md:text-base font-inter text-gray-300">
-        Estado:
-        <span
-          class="font-bold {{
-            roomData.status === 'active' ? 'text-green-400' : 'text-yellow-400'
-          }}"
-        >
-          {{
-            roomData.status === "active"
-              ? "Lista para jugar"
-              : "Esperando al segundo jugador..."
-          }}
-        </span>
-      </p>
-    </div>
-    } @if (!roomData) {
-    <div class="mt-6 bg-red-900/40 p-4 rounded-lg text-center">
-      <p class="text-sm md:text-base font-inter text-red-400">
-        La sala ha sido cerrada o alguien se ha ido.
-      </p>
-      <p class="text-xs text-gray-400 mt-2">
-        Redirigiendo a la pantalla principal...
-      </p>
-    </div>
-    } @if (roomData) {
-    <div class="flex justify-center gap-4 mt-6">
+    <!-- -->
+    @if (roomData) {
+    <div class="flex justify-center gap-3 mt-4">
       @if (!isPlayer1) {
       <button
-        class="text-sm md:text-base py-3 px-6 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 flex items-center"
+        class="text-xs md:text-sm py-2 px-4 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 transition duration-200 flex items-center"
         (click)="leaveRoom()"
       >
         <svg
@@ -276,9 +262,12 @@
         </svg>
         Salir de Sala
       </button>
-      } @if (isPlayer1) {
+      }
+
+      <!-- -->
+      @if (isPlayer1) {
       <button
-        class="text-sm md:text-base py-3 px-6 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 hover:shadow-lg transition duration-200 flex items-center"
+        class="text-xs md:text-sm py-2 px-4 bg-gradient-to-r from-red-700 to-red-900 text-white font-inter rounded-lg hover:opacity-90 transition duration-200 flex items-center"
         (click)="closeRoom()"
       >
         <svg
@@ -298,6 +287,79 @@
         Cerrar Sala
       </button>
       }
+    </div>
+    }
+
+    <!-- -->
+    @if (showModal) {
+    <div
+      class="fixed inset-0 flex items-center justify-center bg-purple-950/70 z-50"
+    >
+      <div
+        class="bg-gray-900 rounded-xl shadow-2xl w-full max-w-[280px] md:max-w-xs p-5 text-center border border-gray-800"
+      >
+        <h2 class="text-lg font-inter font-semibold text-white mb-3">
+          ¡Fin del juego!
+        </h2>
+        <div class="mb-4">
+          <p class="text-sm font-inter text-gray-400">
+            Ganador:
+            <span
+              class="block text-base font-bold"
+              [ngClass]="{
+                'text-indigo-400':
+                  (roomData?.player1Score || 0) > (roomData?.player2Score || 0),
+                'text-orange-400':
+                  (roomData?.player2Score || 0) > (roomData?.player1Score || 0),
+                'text-gray-300':
+                  (roomData?.player1Score || 0) ===
+                  (roomData?.player2Score || 0)
+              }"
+            >
+              {{
+                (roomData?.player1Score || 0) > (roomData?.player2Score || 0)
+                  ? roomData?.player1
+                  : (roomData?.player2Score || 0) >
+                    (roomData?.player1Score || 0)
+                  ? roomData?.player2
+                  : "Empate"
+              }}
+            </span>
+          </p>
+          <p class="text-xs font-inter text-gray-500 mt-2">
+            {{ roomData?.player1 }}: {{ roomData?.player1Score || 0 }} pares •
+            {{ roomData?.player2 }}: {{ roomData?.player2Score || 0 }} pares
+          </p>
+        </div>
+        <div class="flex justify-center gap-3">
+          <button
+            (click)="closeModal()"
+            class="py-1.5 px-4 bg-gray-700 text-gray-200 text-sm font-inter rounded-lg hover:bg-gray-600 transition duration-200"
+          >
+            Cerrar
+          </button>
+          @if (isPlayer1) {
+          <button
+            (click)="restartGame()"
+            class="py-1.5 px-4 bg-indigo-600 text-white text-sm font-inter rounded-lg hover:bg-indigo-500 transition duration-200"
+          >
+            Reiniciar
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- -->
+    @if (!roomData) {
+    <div class="mt-4 bg-red-900/40 p-3 rounded-lg text-center font-inter">
+      <p class="text-sm font-inter text-red-400">
+        La sala ha sido cerrada o alguien se ha ido.
+      </p>
+      <p class="text-xs text-gray-400 mt-2">
+        Redirigiendo a la pantalla principal...
+      </p>
     </div>
     }
   </div>

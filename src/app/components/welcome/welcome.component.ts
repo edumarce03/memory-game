@@ -17,6 +17,7 @@ export class WelcomeComponent {
   isErrorExiting: boolean = false;
   notification: { message: string; type: 'error' | 'success' } | null = null;
   isNotificationExiting: boolean = false;
+  isLoading: 'create' | null = null;
 
   private firestoreService = inject(FirestoreService);
   private playerService = inject(PlayerService);
@@ -82,26 +83,29 @@ export class WelcomeComponent {
       this.hideNotificationAfterDelay();
       return;
     }
-    this.playerService.setPlayerName(this.playerName);
-    this.firestoreService
-      .createRoom(this.playerName)
-      .then((roomId) => {
-        this.notification = {
-          message: 'Sala creada con éxito',
-          type: 'success',
-        };
-        this.hideNotificationAfterDelay();
-        setTimeout(() => {
-          this.router.navigate(['/game', roomId]);
-        }, 1000);
-      })
-      .catch((error) => {
-        this.notification = {
-          message: 'Error al crear la sala: ' + error.message,
-          type: 'error',
-        };
-        this.hideNotificationAfterDelay();
-      });
+    this.isLoading = 'create';
+    try {
+      this.playerService.setPlayerName(this.playerName);
+      const roomId = await this.firestoreService.createRoom(this.playerName);
+      this.notification = {
+        message: 'Sala creada con éxito',
+        type: 'success',
+      };
+      this.hideNotificationAfterDelay();
+      setTimeout(() => {
+        this.router.navigate(['/game', roomId]);
+      }, 1000);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido';
+      this.notification = {
+        message: 'Error al crear la sala: ' + errorMessage,
+        type: 'error',
+      };
+      this.hideNotificationAfterDelay();
+    } finally {
+      this.isLoading = null;
+    }
   }
 
   goToJoinRoom() {
@@ -114,14 +118,22 @@ export class WelcomeComponent {
       this.hideNotificationAfterDelay();
       return;
     }
-    this.playerService.setPlayerName(this.playerName);
-    this.notification = {
-      message: 'Nombre registrado, puedes unirte a una sala',
-      type: 'success',
-    };
-    this.hideNotificationAfterDelay();
-    setTimeout(() => {
+    try {
+      this.playerService.setPlayerName(this.playerName);
+      this.notification = {
+        message: 'Nombre registrado, puedes unirte a una sala',
+        type: 'success',
+      };
+      this.hideNotificationAfterDelay();
       this.router.navigate(['/join-room']);
-    }, 1000); // Retraso para ver la notificación
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error desconocido';
+      this.notification = {
+        message: 'Error al procesar la acción: ' + errorMessage,
+        type: 'error',
+      };
+      this.hideNotificationAfterDelay();
+    }
   }
 }

@@ -4,10 +4,12 @@ import { FirestoreService } from '../../services/firestore.service';
 import { PlayerService } from '../../services/player.service';
 import { doc, onSnapshot } from '@angular/fire/firestore';
 import { CommonModule } from '@angular/common';
+import { AlertComponent } from '../alert/alert.component';
 
 @Component({
   selector: 'app-game',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, AlertComponent],
   templateUrl: './game.component.html',
 })
 export class GameComponent implements OnInit, OnDestroy {
@@ -17,6 +19,10 @@ export class GameComponent implements OnInit, OnDestroy {
   roomData: any = null;
   categories = ['emotions', 'food', 'animals', 'professions'];
   showAllCards: boolean = false;
+  notification: { message: string; type: 'error' | 'success' | 'info' } | null =
+    null;
+  isNotificationExiting: boolean = false;
+  showModal: boolean = false;
   private unsubscribe: (() => void) | null = null;
 
   private playerService = inject(PlayerService);
@@ -37,6 +43,25 @@ export class GameComponent implements OnInit, OnDestroy {
         if (snapshot.exists()) {
           this.roomData = snapshot.data();
           this.isPlayer1 = this.roomData.player1 === this.playerName;
+          if (this.roomData.notification) {
+            const { event, data } = this.roomData.notification;
+            switch (event) {
+              case 'category_selected':
+                const categoryName = this.getCategoryName(data.category);
+                this.showNotification(
+                  this.isPlayer1
+                    ? `Categoría seleccionada: ${categoryName}`
+                    : `${this.roomData.player1} seleccionó: ${categoryName}`,
+                  'success'
+                );
+                break;
+            }
+            if (this.isPlayer1) {
+              setTimeout(() => {
+                this.firestoreService.clearNotification(this.roomId!);
+              }, 3000);
+            }
+          }
           if (
             this.roomData.status === 'playing' &&
             !this.roomData.currentTurn &&
@@ -53,8 +78,10 @@ export class GameComponent implements OnInit, OnDestroy {
               }
             }, 2000);
           }
+          this.showModal = this.roomData.status === 'finished';
         } else {
           this.roomData = null;
+          this.showNotification('La sala ya no existe', 'error');
           setTimeout(() => this.router.navigate(['/']), 2000);
         }
       });
@@ -64,6 +91,11 @@ export class GameComponent implements OnInit, OnDestroy {
   async selectCategory(category: string) {
     if (this.roomId && this.isPlayer1) {
       await this.firestoreService.setCategory(this.roomId, category as any);
+      await this.firestoreService.sendNotification(
+        this.roomId,
+        'category_selected',
+        { category }
+      );
     }
   }
 
@@ -87,22 +119,58 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Función para copiar el ID de la sala al portapapeles
   copyRoomId() {
     if (this.roomId) {
       navigator.clipboard
         .writeText(this.roomId)
         .then(() => {
-          // Opcional: Puedes añadir alguna notificación de copiado exitoso
-          console.log('ID de sala copiado al portapapeles');
+          this.showNotification('ID copiado al portapapeles', 'success');
         })
         .catch((err) => {
+          this.showNotification('Error al copiar el ID', 'error');
           console.error('Error al copiar el ID de sala:', err);
         });
     }
   }
 
+  showNotification(message: string, type: 'error' | 'success' | 'info') {
+    this.notification = { message, type };
+    this.hideNotificationAfterDelay();
+  }
+
+  hideNotificationAfterDelay() {
+    setTimeout(() => {
+      this.isNotificationExiting = true;
+      setTimeout(() => {
+        this.notification = null;
+        this.isNotificationExiting = false;
+      }, 300);
+    }, 3000);
+  }
+
+  getCategoryName(category: string): string {
+    return category === 'emotions'
+      ? 'Emociones'
+      : category === 'food'
+      ? 'Comida'
+      : category === 'animals'
+      ? 'Animales'
+      : 'Profesiones';
+  }
+
   ngOnDestroy() {
     if (this.unsubscribe) this.unsubscribe();
+  }
+
+  closeModal() {
+    this.showModal = false;
+  }
+
+  async restartGame() {
+    if (this.roomId && this.isPlayer1) {
+      await this.firestoreService.updateRoomStatus(this.roomId, 'active');
+      await this.firestoreService.clearBoard(this.roomId);
+      this.showModal = false;
+    }
   }
 }
