@@ -1,20 +1,26 @@
 import { Routes } from '@angular/router';
-import { WelcomeComponent } from './components/welcome/welcome.component';
 import { GameComponent } from './components/game/game.component';
 import { JoinRoomComponent } from './components/join-room/join-room.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: WelcomeComponent,
+    loadComponent: () =>
+      import('./components/welcome/welcome.component').then(
+        (m) => m.WelcomeComponent
+      ),
   },
   {
     path: 'game/:roomId',
-    component: GameComponent,
+    loadComponent: () =>
+      import('./components/game/game.component').then((m) => m.GameComponent),
   },
   {
     path: 'join-room',
-    component: JoinRoomComponent,
+    loadComponent: () =>
+      import('./components/join-room/join-room.component').then(
+        (m) => m.JoinRoomComponent
+      ),
   },
   {
     path: '**',
