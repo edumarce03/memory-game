@@ -42,7 +42,18 @@ export class FirestoreService {
 
   async leaveRoom(roomId: string) {
     const roomRef = doc(this.firestore, 'rooms', roomId);
-    await updateDoc(roomRef, { player2: null, status: 'waiting' });
+    await updateDoc(roomRef, {
+      player2: null,
+      status: 'waiting',
+      board: [],
+      flipped: [],
+      matched: [],
+      matchedBy: [],
+      currentTurn: null,
+      player1Score: 0,
+      player2Score: 0,
+      category: null,
+    });
   }
 
   async closeRoom(roomId: string) {

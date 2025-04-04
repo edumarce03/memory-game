@@ -8,7 +8,7 @@ export interface Room {
   flipped?: number[];
   matched?: number[];
   matchedBy?: string[];
-  currenTurn?: string;
+  currentTurn?: string;
   player1Score?: number;
   player2Score?: number;
 }
