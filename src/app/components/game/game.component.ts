@@ -17,7 +17,14 @@ export class GameComponent implements OnInit, OnDestroy {
   playerName: string = '';
   isPlayer1: boolean = false;
   roomData: any = null;
-  categories = ['emotions', 'food', 'animals', 'professions'];
+  categories = [
+    'emotions',
+    'food',
+    'animals',
+    'professions',
+    'sports',
+    'travel',
+  ];
   showAllCards: boolean = false;
   notification: { message: string; type: 'error' | 'success' | 'info' } | null =
     null;
@@ -155,7 +162,11 @@ export class GameComponent implements OnInit, OnDestroy {
       ? 'Comida'
       : category === 'animals'
       ? 'Animales'
-      : 'Profesiones';
+      : category === 'professions'
+      ? 'Profesiones'
+      : category === 'sports'
+      ? 'Deportes'
+      : 'Viajes';
   }
 
   ngOnDestroy() {

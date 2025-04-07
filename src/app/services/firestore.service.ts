@@ -129,7 +129,13 @@ export class FirestoreService {
   }
 
   private generateBoard(
-    category: 'emotions' | 'food' | 'animals' | 'professions'
+    category:
+      | 'emotions'
+      | 'food'
+      | 'animals'
+      | 'professions'
+      | 'sports'
+      | 'travel'
   ): string[] {
     const emojiSets = {
       emotions: [
@@ -204,7 +210,44 @@ export class FirestoreService {
         '👨‍🔬',
         '👩‍🔬',
       ],
+      sports: [
+        '⚽',
+        '🏀',
+        '🏈',
+        '⚾',
+        '🎾',
+        '🏐',
+        '🏉',
+        '🎱',
+        '🏓',
+        '🏸',
+        '🥊',
+        '🏊‍♂️',
+        '🚴‍♀️',
+        '⛷️',
+        '🏄‍♂️',
+        '🏌️‍♀️',
+      ],
+      travel: [
+        '✈️',
+        '🚗',
+        '🚂',
+        '🚢',
+        '🏝️',
+        '🏰',
+        '🗽',
+        '🗿',
+        '🏞️',
+        '🌋',
+        '🏔️',
+        '🏕️',
+        '🌆',
+        '🏙️',
+        '🚀',
+        '🚁',
+      ],
     };
+
     const selectedEmojis = emojiSets[category].slice(0, 8);
     const board = [...selectedEmojis, ...selectedEmojis];
     return this.shuffleArray(board);

@@ -5,19 +5,111 @@
     <title>MemoryGame</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Icon - Web -->
     <link
       rel="shortcut icon"
       href="assets/logo-Web-MemoryGame.png"
       type="image/x-icon"
     />
-    <!-- FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: linear-gradient(to bottom right, #111827, #4c1d95, #0f172a);
+        color: #e9d5ff;
+        min-height: 100vh;
+      }
+
+      #app-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom right, #111827, #4c1d95, #0f172a);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(139, 92, 246, 0.3);
+        border-radius: 50%;
+        border-top-color: #a855f7;
+        animation: spin 1s linear infinite;
+      }
+
+      .loading-text {
+        margin-top: 16px;
+        font-size: 16px;
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        color: #d8b4fe;
+        letter-spacing: -0.01em;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .welcome-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+    </style>
+
     <script
       src="https://kit.fontawesome.com/bb6c2a5170.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
+    <div id="app-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Cargando juego...</div>
+    </div>
+
     <app-root></app-root>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+          const appLoading = document.getElementById("app-loading");
+          if (appLoading) {
+            appLoading.style.opacity = "0";
+            setTimeout(() => {
+              appLoading.style.display = "none";
+            }, 500);
+          }
+        }, 300);
+      });
+
+      window.addEventListener("load", function () {
+        const appLoading = document.getElementById("app-loading");
+        if (appLoading && appLoading.style.opacity !== "0") {
+          appLoading.style.opacity = "0";
+          setTimeout(() => {
+            appLoading.style.display = "none";
+          }, 500);
+        }
+      });
+    </script>
   </body>
 </html>

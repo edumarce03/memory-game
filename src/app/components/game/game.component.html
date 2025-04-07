@@ -113,14 +113,14 @@
       </div>
     </div>
 
-    <!-- Selección de Categorías -->
+    <!--  -->
     @if (roomData?.status === 'active' && isPlayer1) {
     <div class="mb-4 bg-gray-900/40 p-3 rounded-lg">
       <h3 class="text-xs font-inter text-white/80 mb-3">
         Selecciona una categoría
       </h3>
 
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
         @for (category of categories; track category) {
         <button
           (click)="selectCategory(category)"
@@ -134,7 +134,11 @@
                 ? "Comida 🍔"
                 : category === "animals"
                 ? "Animales 🐱"
-                : "Profesiones 👨‍💼"
+                : category === "professions"
+                ? "Profesiones 👨‍💼"
+                : category === "sports"
+                ? "Deportes ⚽"
+                : "Viajes ✈️"
             }}
           </span>
         </button>
@@ -173,7 +177,13 @@
                 ? "Comida"
                 : roomData?.category === "animals"
                 ? "Animales"
-                : "Profesiones"
+                : roomData?.category === "professions"
+                ? "Profesiones"
+                : roomData?.category === "sports"
+                ? "Deportes"
+                : roomData?.category === "travel"
+                ? "Viajes"
+                : ""
             }}
           </span>
         </p>

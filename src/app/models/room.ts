@@ -3,7 +3,14 @@ export interface Room {
   player2: string | null;
   createdAt: string;
   status: 'waiting' | 'active' | 'finished';
-  category?: 'emotions' | 'food' | 'animals' | 'professions' | null;
+  category?:
+    | 'emotions'
+    | 'food'
+    | 'animals'
+    | 'professions'
+    | 'sports'
+    | 'travel'
+    | null;
   board?: string[];
   flipped?: number[];
   matched?: number[];
